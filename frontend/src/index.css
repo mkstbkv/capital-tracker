@@ -1,0 +1,17 @@
+/* Подключение стилей Tailwind */
+@import "tailwindcss";
+
+/* УНИВЕРСАЛЬНАЯ ДИРЕКТИВА ТЕМЫ ДЛЯ VITE */
+@variant dark (&:where(.dark, .dark *));
+
+/* СТРОГИЙ СИСТЕМНЫЙ СБРОС (Чтобы в темноте не мерцал белый фон браузера) */
+html.dark {
+  color-scheme: dark;
+  background-color: #020617 !important; /* Селектор цвета slate-950 */
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
