@@ -8,6 +8,7 @@ const transactionRoutes = require('./src/routes/transactionRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes'); 
 const currencyRoutes = require('./src/routes/currencyRoutes'); 
 const budgetRoutes = require('./src/routes/budgetRoutes');
+const goalRoutes = require('./src/routes/goalRoutes');
 const app = express();
 
 app.use(cors());
@@ -20,6 +21,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/currency', currencyRoutes); 
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/goals', goalRoutes);
 
 
 const PORT = process.env.PORT || 5000;

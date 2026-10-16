@@ -53,3 +53,13 @@ export interface BudgetStatus {
   limit_amount: number;
   current_expense: number;
 }
+
+export interface SavingGoal {
+  id: number;
+  user_id: number;
+  name: string;
+  target_amount: number;
+  current_amount: number;
+  currency: string;
+  created_at: string;
+}

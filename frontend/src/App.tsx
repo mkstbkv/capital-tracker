@@ -8,8 +8,9 @@ import ExportReport from './features/transactions/ExportReport';
 import CategoryForm from './features/categories/CategoryForm';
 import BudgetLimits from './features/budgets/BudgetLimits';
 import FinancialWidgets from './features/analytics/FinancialWidgets';
+import SavingGoals from './features/goals/SavingGoals';
 import API from './api/axiosInstance';
-import type { User, Account, Transaction, Category, CurrencyRatesResponse, BudgetStatus } from './types/types'; 
+import type { User, Account, Transaction, Category, CurrencyRatesResponse, BudgetStatus, SavingGoal  } from './types/types'; 
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -21,6 +22,8 @@ export default function App() {
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [currencyRates, setCurrencyRates] = useState<{ [key: string]: number } | null>(null);
   const [budgets, setBudgets] = useState<BudgetStatus[]>([]);
+  const [goals, setGoals] = useState<SavingGoal[]>([]);
+
 
   // НОВЫЙ СТЕЙТ: Премиальная Тёмная Тема (сохраняем выбор пользователя в браузере)
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -65,7 +68,7 @@ export default function App() {
     setSelectedAccountId(null);
     setUser(null);
   };
-  const fetchAllData = useCallback(async () => {
+    const fetchAllData = useCallback(async () => {
     if (!user) return;
     try {
       let url = `/transactions`;
@@ -81,12 +84,14 @@ export default function App() {
         budgetUrl += `&${queryParams}`;
       }
 
-      const [accountsRes, transactionsRes, categoriesRes, currencyRes, budgetsRes] = await Promise.all([
+      // ДОБАВИЛИ: goalsRes параллельно стягивает копилки из PostgreSQL
+      const [accountsRes, transactionsRes, categoriesRes, currencyRes, budgetsRes, goalsRes] = await Promise.all([
         API.get<Account[]>('/accounts'),
         API.get<Transaction[]>(url),
         API.get<Category[]>('/categories'),
         API.get<CurrencyRatesResponse>('/currency/rates'),
-        API.get<BudgetStatus[]>(budgetUrl)
+        API.get<BudgetStatus[]>(budgetUrl),
+        API.get<SavingGoal[]>('/goals') // Наш новый эндпоинт
       ]);
 
       setAccounts(accountsRes.data);
@@ -96,10 +101,12 @@ export default function App() {
         setCurrencyRates(currencyRes.data.rates);
       }
       setBudgets(budgetsRes.data);
+      setGoals(goalsRes.data); // Сохраняем цели в стейт
     } catch (error) {
       console.error('Ошибка синхронизации данных:', error);
     }
   }, [user, filterMode, currentMonth, currentYear, startDate, endDate]);
+
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -202,6 +209,12 @@ export default function App() {
           selectedAccountId={selectedAccountId} 
           onAccountSelect={(id) => setSelectedAccountId(id === selectedAccountId ? null : id)} 
           onAccountCreated={fetchAllData} 
+        />
+
+        <SavingGoals 
+          goals={goals} 
+          accounts={accounts} 
+          onGoalsUpdated={fetchAllData} 
         />
 
         {/* БЛОК 3: ПАНЕЛЬ ВЫПИСКИ И ФИЛЬТРОВ */}
